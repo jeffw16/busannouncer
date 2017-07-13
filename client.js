@@ -35,34 +35,69 @@ var ss = window.speechSynthesis;
 // };
 
 var speech = {
-  general: {
-    nextstop: 'Next stop',
-    thisstop: 'You are currently at',
-    bus: 'bus',
-    arriving: 'Now arriving at',
-    welcome: 'Welcome to the',
-    nb: 'northbound',
-    sb: 'southbound',
-    nt: 'northern terminus',
-    st: 'southern terminus',
-    thankyou: 'Thank you for riding the',
-    thisis: 'This is the',
-    fullstop: '.'
+  'en-US': {
+    general: {
+      nextstop: 'Next stop',
+      thisstop: 'You are currently at',
+      bus: 'bus',
+      arriving: 'Now arriving at',
+      welcome: 'Welcome to the',
+      nb: 'northbound',
+      sb: 'southbound',
+      nt: 'northern terminus',
+      st: 'southern terminus',
+      thankyou: 'Thank you for riding the',
+      thisis: 'This is the',
+      fullstop: '.',
+      finaldest: 'Final destination'
+    },
+    dcta: {
+      thankyou: 'Thank you for riding with DCTA, the Denton County Transportation Authority.'
+    },
+    dp: {
+      dp: 'Discovery Park',
+      gab: 'the GAB',
+      aveg: 'Avenue G',
+      emery: 'Emery',
+      university: 'University',
+      windsor: 'Windsor',
+      aveh: 'Avenue H',
+      stella: 'Stella at North Texas',
+      rec: 'Rec Center',
+      eesat: 'Environmental Science Building'
+    }
   },
-  dcta: {
-    thankyou: 'Thank you for riding with DCTA, the Denton County Transportation Authority.'
-  },
-  dp: {
-    dp: 'Discovery Park',
-    gab: 'the GAB',
-    aveg: 'Avenue G',
-    emery: 'Emery',
-    university: 'University',
-    windsor: 'Windsor',
-    aveh: 'Avenue H',
-    stella: 'Stella at North Texas',
-    rec: 'Rec Center',
-    eesat: 'Environmental Science Building'
+  'zh-CN': {
+    general: {
+      nextstop: '下一站',
+      thisstop: '您现在在',
+      bus: '巴士',
+      arriving: '现在到达',
+      welcome: '欢迎到',
+      nb: '往北',
+      sb: '往南',
+      nt: '北端',
+      st: '南端',
+      thankyou: '谢谢您坐',
+      thisis: '这是',
+      fullstop: '.',
+      finaldest: '前往'
+    },
+    dcta: {
+      thankyou: 'Thank you for riding with DCTA, the Denton County Transportation Authority.'
+    },
+    dp: {
+      dp: 'Discovery Park',
+      gab: 'G.A.B.',
+      aveg: 'G 大街',
+      emery: '爱美丽路',
+      university: '大学路',
+      windsor: '温莎路',
+      aveh: 'H 大街',
+      stella: '斯特拉路交接北德州路',
+      rec: '健身管',
+      eesat: '环境科学楼'
+    }
   }
 };
 
@@ -72,10 +107,19 @@ var speech = {
 
 // ------- Functions ------ \\
 
+function get_language() {
+  return $("#langlist option:selected").attr('id');
+}
+
+function utter( utterwhat ) {
+  var utterance = new SpeechSynthesisUtterance( utterwhat );
+  utterance.lang = get_language();
+  ss.speak(utterance);
+}
+
 function play( category, name ) {
   // sounds[category][name].play();
-  var utterance = new SpeechSynthesisUtterance( speech[category][name] );
-  ss.speak(utterance);
+  utter( speech[get_language()][category][name] );
 }
 
 function playall( arr ) {
@@ -83,10 +127,9 @@ function playall( arr ) {
   arr.forEach(function(element) {
     var category = element[0];
     var name = element[1];
-    uttertext += speech[category][name];
+    uttertext += speech[get_language()][category][name];
   });
-  var utterance = new SpeechSynthesisUtterance( uttertext );
-  ss.speak(utterance);
+  utter( uttertext );
 }
 
 // ------- jQuery ------- \\
@@ -122,9 +165,11 @@ $("#announcements").on('click', '.nextstop', function( event ) {
   // play( 'general', 'thisis' );
   // play( 'dp', 'dp' );
   // play( 'general', 'bus' );
-  playall( [['general', 'thisis'], ['dp', 'dp'], ['general', 'bus'], ['general', 'fullstop']] );
   play( 'general', 'nextstop' );
   play( idinfo[1], idinfo[2] );
+  if ( idinfo[3] == 'nt' || idinfo[3] == 'st' ) {
+    play('general', 'thisis');
+  }
   play( 'general', idinfo[3] );
 });
 
@@ -133,8 +178,25 @@ $("#announcements").on('click', '.thisstop', function( event ) {
   var idinfo = $(this).attr('id').split('-');
   // sounds['general']['nextstop'].play();
   // sounds[idinfo[0]][idinfo[1]].play();
+  var directionarray = ['general', 'fullstop'];
+  if ( idinfo[3] == 'nb' || idinfo[3] == 'st' ) {
+    directionarray = ['general', 'nb'];
+  } else if ( idinfo[3] == 'sb' || idinfo[3] == 'nt' ) {
+    directionarray = ['general', 'sb'];
+  }
+  playall( [['general', 'thisis'], directionarray, ['dp', 'dp'], ['general', 'bus'], ['general', 'fullstop']] );
+  play( 'general', 'finaldest' );
+  // DP bus route specific info
+  if ( idinfo[3] == 'nb' || idinfo[3] == 'st' ) {
+    play( 'dp', 'dp' );
+  } else if ( idinfo[3] == 'sb' || idinfo[3] == 'nt' ) {
+    play( 'dp', 'gab' );
+  }
   play( 'general', 'thisstop' );
   play( idinfo[1], idinfo[2] );
+  if ( idinfo[3] == 'nt' || idinfo[3] == 'st' ) {
+    play('general', 'thisis');
+  }
   play( 'general', idinfo[3] );
 });
 
@@ -145,5 +207,8 @@ $("#announcements").on('click', '.arriving', function( event ) {
   // sounds[idinfo[0]][idinfo[1]].play();
   play( 'general', 'arriving' );
   play( idinfo[1], idinfo[2] );
+  if ( idinfo[3] == 'nt' || idinfo[3] == 'st' ) {
+    play('general', 'thisis');
+  }
   play( 'general', idinfo[3] );
 });
