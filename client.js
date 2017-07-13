@@ -52,7 +52,7 @@ var speech = {
       finaldest: 'Final destination'
     },
     dcta: {
-      thankyou: 'Thank you for riding with DCTA, the Denton County Transportation Authority.'
+      thankyou: 'Thank you for riding with the DCTA.'
     },
     dp: {
       dp: 'Discovery Park',
@@ -84,11 +84,11 @@ var speech = {
       finaldest: '前往'
     },
     dcta: {
-      thankyou: 'Thank you for riding with DCTA, the Denton County Transportation Authority.'
+      thankyou: 'Thank you for riding with the DCTA.'
     },
     dp: {
-      dp: 'Discovery Park',
-      gab: 'G.A.B.',
+      dp: '发现公园',
+      gab: '总学术楼',
       aveg: 'G 大街',
       emery: '爱美丽路',
       university: '大学路',
